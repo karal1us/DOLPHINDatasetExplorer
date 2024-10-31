@@ -22,6 +22,12 @@ st.set_page_config(
 # Custom CSS for better styling
 st.markdown("""
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        
         .block-container {
             max-width: 1000px;
             padding-top: 2rem;
@@ -33,12 +39,14 @@ st.markdown("""
             font-size: 2.5rem;
             font-weight: bold;
             margin-bottom: 1rem;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
         .description {
             text-align: center;
             margin-bottom: 3rem;
             color: #FAFAFA;
             font-size: 1.2rem;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
         .search-container {
             max-width: 800px;
@@ -49,6 +57,12 @@ st.markdown("""
             background-color: #262730;
             border-radius: 0.5rem;
             margin-bottom: 1rem;
+        }
+        .stTextInput > div > div > input {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .stSelectbox > div > div > div {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
     </style>
 """, unsafe_allow_html=True)
