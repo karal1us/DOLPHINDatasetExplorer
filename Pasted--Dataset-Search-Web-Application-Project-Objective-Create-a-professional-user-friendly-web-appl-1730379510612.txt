@@ -1,0 +1,77 @@
+# Dataset Search Web Application Project
+
+## Objective
+Create a professional, user-friendly web application that allows users to search for datasets from across the internet using advanced AI-powered search capabilities.
+
+## Key Requirements
+
+### Frontend (React)
+1. Clean, modern UI design with responsive layout
+2. Search bar with prominent positioning
+3. Features:
+   - Input field for dataset searches
+   - Loading state indicators
+   - Error handling
+   - Results display area
+
+### Backend & Search Functionality
+1. Implement a search mechanism that:
+   - Uses Claude AI to generate comprehensive dataset search results
+   - Provides multiple dataset links
+   - Categorizes results
+   - Validates and filters links
+
+### Technical Stack
+- Frontend: React
+- Backend: Node.js with Express
+- AI Integration: Anthropic Claude API
+- Styling: Tailwind CSS
+- Additional Libraries: 
+  - axios for API calls
+  - react-icons for icons
+  - shadcn/ui for component styling
+
+## Detailed Feature Specifications
+
+### Search Functionality
+- Advanced search algorithm that:
+  - Understands user intent
+  - Supports multiple domain-specific searches
+  - Provides context-aware results
+
+### Result Display
+- Clean card-based layout for results
+- Each result should include:
+  - Dataset name
+  - Brief description
+  - Source link
+   - Relevance score
+   - Domain/category tag
+
+### AI Integration Prompt Template
+```javascript
+const CLAUDE_SEARCH_PROMPT = `
+You are an expert dataset researcher. For the query "{SEARCH_QUERY}":
+
+1. Generate a comprehensive list of high-quality, relevant datasets
+2. Prioritize datasets based on:
+   - Relevance to search query
+   - Data recency
+   - Credibility of source
+   - Accessibility
+
+Guidelines for dataset selection:
+- Prefer open-source and publicly available datasets
+- Include diverse sources (academic, government, research institutions)
+- Provide direct, working download links
+- Avoid paywalled or restricted access resources
+
+For each dataset, provide:
+- Dataset Name
+- Short Description
+- Direct Download/Access Link
+- Source Domain
+- Potential Use Cases
+
+Return results as a structured JSON array with these fields.
+`;
