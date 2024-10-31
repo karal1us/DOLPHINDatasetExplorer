@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime, timedelta
+from typing import Optional
 import psycopg2
 from psycopg2.extras import Json
 from models import Dataset, SearchResult
@@ -18,6 +19,10 @@ class DatabaseManager:
 
     def _create_tables(self):
         with self.conn.cursor() as cur:
+            # Drop the type if it exists
+            cur.execute("DROP TYPE IF EXISTS search_cache CASCADE")
+            
+            # Create the table
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS search_cache (
                     query TEXT PRIMARY KEY,
@@ -33,7 +38,7 @@ class DatabaseManager:
                 "SELECT results, timestamp FROM search_cache WHERE query = %s",
                 (query,)
             )
-            result = cur.execute().fetchone()
+            result = cur.fetchone()
             
             if not result:
                 return None
