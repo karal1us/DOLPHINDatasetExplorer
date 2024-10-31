@@ -19,8 +19,8 @@ class DatabaseManager:
 
     def _create_tables(self):
         with self.conn.cursor() as cur:
-            # Drop the type if it exists
-            cur.execute("DROP TYPE IF EXISTS search_cache CASCADE")
+            # First drop the table if it exists
+            cur.execute("DROP TABLE IF EXISTS search_cache")
             
             # Create the table
             cur.execute("""
