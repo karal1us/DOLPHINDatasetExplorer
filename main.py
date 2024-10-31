@@ -50,6 +50,24 @@ st.markdown("""
             border-radius: 0.5rem;
             margin-bottom: 1rem;
         }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 1rem;
+            background-color: #0E1117;
+            border-top: 1px solid #262730;
+        }
+        .footer a {
+            color: #4FB3E8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .footer a:hover {
+            color: #2D8BC7;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -131,3 +149,10 @@ if search_query:
             
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
+
+# Add footer with Twitter attribution
+st.markdown("""
+    <div class="footer">
+        Made by <a href="https://twitter.com/GalvosasJ" target="_blank">@GalvosasJ</a>
+    </div>
+""", unsafe_allow_html=True)
