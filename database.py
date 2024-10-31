@@ -19,9 +19,6 @@ class DatabaseManager:
 
     def _create_tables(self):
         with self.conn.cursor() as cur:
-            # First drop the table if it exists
-            cur.execute("DROP TABLE IF EXISTS search_cache")
-            
             # Create the table
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS search_cache (
@@ -49,7 +46,7 @@ class DatabaseManager:
             if datetime.now() - timestamp > timedelta(hours=24):
                 return None
                 
-            return SearchResult(**results_json)
+            return SearchResult.from_json(results_json)
 
     def cache_results(self, query: str, results: SearchResult):
         with self.conn.cursor() as cur:
@@ -61,6 +58,6 @@ class DatabaseManager:
                 SET results = EXCLUDED.results,
                     timestamp = EXCLUDED.timestamp
                 """,
-                (query, Json(results.__dict__), datetime.now())
+                (query, Json(results.to_json()), datetime.now())
             )
         self.conn.commit()
