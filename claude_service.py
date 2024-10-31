@@ -2,6 +2,8 @@ import os
 from typing import List
 import anthropic
 from models import Dataset, SearchResult
+from datetime import datetime
+import json
 
 CLAUDE_SEARCH_PROMPT = """
 You are an expert dataset researcher. For the query "{query}":
@@ -31,7 +33,11 @@ Return results as a structured JSON array with these fields.
 
 class ClaudeService:
     def __init__(self):
-        self.client = anthropic.Anthropic()
+        # Initialize the Anthropic client with the API key from environment variables
+        api_key = os.environ.get('ANTHROPIC_API_KEY')
+        if not api_key:
+            raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
+        self.client = anthropic.Anthropic(api_key=api_key)
 
     def search_datasets(self, query: str) -> SearchResult:
         try:
@@ -46,7 +52,7 @@ class ClaudeService:
             )
             
             # Parse the JSON response
-            results = response.content[0].text
+            results = json.loads(response.content[0].text)
             datasets = []
             
             for item in results:
