@@ -10,12 +10,12 @@ claude = ClaudeService()
 
 # Page config
 st.set_page_config(
-    page_title="Dataset Search",
-    page_icon="🔍",
+    page_title="Dolphin | AI-Powered Data Search",
+    page_icon="🐬",
     layout="wide",
     initial_sidebar_state="collapsed",
     menu_items={
-        'About': "AI-Powered Dataset Search Engine"
+        'About': "Dolphin - AI-Powered Dataset Search Engine"
     }
 )
 
@@ -27,13 +27,18 @@ st.markdown("""
             padding-top: 2rem;
             padding-bottom: 2rem;
         }
-        .stTitle {
+        .main-title {
             text-align: center;
-            padding-bottom: 2rem;
+            color: #4FB3E8;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
         }
         .description {
             text-align: center;
             margin-bottom: 3rem;
+            color: #FAFAFA;
+            font-size: 1.2rem;
         }
         .search-container {
             max-width: 800px;
@@ -49,7 +54,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Title and description
-st.title("📊 AI-Powered Dataset Search")
+st.markdown('<h1 class="main-title">🐬 Dolphin | AI-Powered Data Search</h1>', unsafe_allow_html=True)
 st.markdown("""
     <div class="description">
         Find the perfect dataset for your project using our advanced AI-powered search.
