@@ -19,37 +19,109 @@ st.set_page_config(
     }
 )
 
-# Custom CSS for better styling
+# Custom CSS for better styling and animations
 st.markdown("""
     <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
         .block-container {
             max-width: 1000px;
             padding-top: 2rem;
             padding-bottom: 2rem;
+            position: relative;
+            z-index: 1;
         }
+        
+        /* Background with dolphin animation */
+        .stApp::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0E1117 0%, #1a1f2c 100%);
+            background-image: url('https://i.imgur.com/8eJK5Zx.gif');
+            background-repeat: no-repeat;
+            background-position: bottom right;
+            background-size: 300px auto;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
         .main-title {
             text-align: center;
             color: #4FB3E8;
             font-size: 2.5rem;
             font-weight: bold;
             margin-bottom: 1rem;
+            animation: float 6s ease-in-out infinite;
         }
+        
         .description {
             text-align: center;
             margin-bottom: 3rem;
             color: #FAFAFA;
             font-size: 1.2rem;
+            animation: fadeIn 1s ease-out;
         }
+        
         .search-container {
             max-width: 800px;
             margin: 0 auto;
             padding: 1rem;
+            animation: fadeIn 1s ease-out;
         }
+        
         .stExpander {
-            background-color: #262730;
+            background-color: rgba(38, 39, 48, 0.8);
             border-radius: 0.5rem;
             margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+            backdrop-filter: blur(10px);
         }
+        
+        .stExpander:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background-color: rgba(38, 39, 48, 0.9);
+        }
+        
+        /* Animate progress bars */
+        .stProgress > div > div {
+            transition: width 0.8s ease-in-out;
+        }
+        
+        /* Style select boxes */
+        .stSelectbox {
+            transition: all 0.3s ease;
+        }
+        
+        .stSelectbox:hover {
+            border-color: #4FB3E8;
+        }
+        
+        /* Style text input */
+        .stTextInput > div > div > input {
+            transition: all 0.3s ease;
+        }
+        
+        .stTextInput > div > div > input:focus {
+            border-color: #4FB3E8;
+            box-shadow: 0 0 0 1px #4FB3E8;
+        }
+        
         .footer {
             position: fixed;
             bottom: 0;
@@ -57,14 +129,18 @@ st.markdown("""
             width: 100%;
             text-align: center;
             padding: 1rem;
-            background-color: #0E1117;
+            background-color: rgba(14, 17, 23, 0.9);
             border-top: 1px solid #262730;
+            backdrop-filter: blur(10px);
+            z-index: 100;
         }
+        
         .footer a {
             color: #4FB3E8;
             text-decoration: none;
             transition: color 0.3s ease;
         }
+        
         .footer a:hover {
             color: #2D8BC7;
         }
