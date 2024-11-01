@@ -25,7 +25,7 @@ st.markdown("""
         .block-container {
             max-width: 1000px;
             padding-top: 2rem;
-            padding-bottom: 6rem;  /* Increased padding to accommodate footer */
+            padding-bottom: 2rem;
         }
         .main-title {
             text-align: center;
@@ -57,26 +57,16 @@ st.markdown("""
             width: 100%;
             text-align: center;
             padding: 1rem;
-            background-color: rgba(14, 17, 23, 0.95);  /* Slightly transparent background */
+            background-color: #0E1117;
             border-top: 1px solid #262730;
-            z-index: 1000;  /* Ensure footer stays on top */
-            backdrop-filter: blur(5px);  /* Add blur effect for better visibility */
         }
         .footer a {
             color: #4FB3E8;
             text-decoration: none;
             transition: color 0.3s ease;
-            font-weight: 500;  /* Make the link more visible */
-            padding: 0.25rem 0.5rem;  /* Add padding for better touch targets */
-            border-radius: 4px;
         }
         .footer a:hover {
             color: #2D8BC7;
-            background-color: rgba(79, 179, 232, 0.1);  /* Subtle hover effect */
-        }
-        /* Add margin to last expander to prevent footer overlap */
-        .stExpander:last-child {
-            margin-bottom: 4rem;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -163,6 +153,6 @@ if search_query:
 # Add footer with Twitter attribution
 st.markdown("""
     <div class="footer">
-        Made with 💙 by <a href="https://twitter.com/GalvosasJ" target="_blank">@GalvosasJ</a>
+        Made by <a href="https://twitter.com/GalvosasJ" target="_blank">@GalvosasJ</a>
     </div>
 """, unsafe_allow_html=True)
