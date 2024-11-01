@@ -5,37 +5,24 @@ from models import Dataset, SearchResult
 from datetime import datetime
 import json
 
-CLAUDE_SEARCH_PROMPT = """
-You are an expert dataset researcher. For the query "{query}", provide a list of relevant datasets.
+CLAUDE_SEARCH_PROMPT = '''You are an expert dataset researcher. For the query "{query}", provide a list of relevant datasets.
 
-IMPORTANT: Your response must be ONLY a valid JSON array in this EXACT format:
-[
-  {
-    "name": "string - name of the dataset",
-    "description": "string - clear and concise description",
-    "url": "string - direct, working download/access link",
-    "domain": "string - one of: Academic, Government, Research, Commercial",
-    "use_cases": ["string - specific use case 1", "string - specific use case 2"]
-  }
-]
+IMPORTANT: Your response must be ONLY a valid JSON array with NO additional text or formatting. Format:
+[{
+  "name": "Dataset Name",
+  "description": "Clear description",
+  "url": "https://direct.link/to/dataset",
+  "domain": "Academic|Government|Research|Commercial",
+  "use_cases": ["Use case 1", "Use case 2"]
+}]
 
-Requirements for each field:
-1. name: Must be descriptive and unique
-2. description: 50-200 characters, factual description
-3. url: Must be a valid, direct access URL
-4. domain: Must be one of the specified categories
-5. use_cases: Array of 2-5 specific applications
-
-Dataset Selection Criteria:
-1. Relevance: Must directly relate to the query
-2. Accessibility: Prefer open-source and public datasets
-3. Quality: Must have clear documentation
-4. Recency: Prioritize recently updated datasets
-
-DO NOT include any explanatory text, headers, or additional content.
-ONLY return the JSON array with 3-7 high-quality results.
-Ensure all URLs are valid and accessible.
-"""
+Requirements:
+- Return 3-7 datasets
+- NO text before or after the JSON array
+- NO comments or explanations
+- NO whitespace before the opening [
+- NO whitespace after the closing ]
+'''
 
 class ClaudeService:
     def __init__(self):
@@ -45,24 +32,30 @@ class ClaudeService:
         self.client = anthropic.Anthropic(api_key=api_key)
 
     def _parse_json_response(self, response_text: str) -> List[dict]:
-        """Parse and validate JSON response from Claude"""
         try:
-            # Remove any potential non-JSON content
-            json_start = response_text.find('[')
-            json_end = response_text.rfind(']') + 1
+            # Clean up the response text
+            cleaned_text = response_text.strip()
+            
+            # Find the JSON array bounds
+            json_start = cleaned_text.find('[')
+            json_end = cleaned_text.rfind(']') + 1
+            
             if json_start == -1 or json_end == 0:
                 raise ValueError("Response does not contain a JSON array")
             
-            json_content = response_text[json_start:json_end]
+            # Extract and clean the JSON content
+            json_content = cleaned_text[json_start:json_end]
+            json_content = json_content.replace('\n', '').replace('\r', '')
+            
+            # Parse the JSON
             results = json.loads(json_content)
             
             if not isinstance(results, list):
                 raise ValueError("Response is not a JSON array")
                 
             return results
-            
         except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON format: {str(e)}\nResponse: {response_text[:100]}...")
+            raise ValueError(f"Failed to parse Claude response as JSON: {str(e)}")
 
     def validate_dataset_structure(self, dataset: dict) -> bool:
         """Validate that a dataset has all required fields with correct types"""
