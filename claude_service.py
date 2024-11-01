@@ -5,18 +5,17 @@ from models import Dataset, SearchResult
 from datetime import datetime
 import json
 
-CLAUDE_SEARCH_PROMPT = '''You are an expert dataset researcher. Search for relevant datasets matching this query: "{query}"
+CLAUDE_SEARCH_PROMPT = '''You are an expert dataset researcher. For the query "{query}", return datasets in this EXACT format:
+[{{"name":"Example Dataset","description":"A clear description of the dataset","url":"https://example.com/data","domain":"Academic","use_cases":["Use case 1","Use case 2"]}}]
 
-Return ONLY a JSON array containing 3-7 datasets. Format each dataset exactly like this, with no extra whitespace or newlines:
-[{"name":"Dataset Name","description":"Clear description","url":"https://direct.link/to/dataset","domain":"Academic|Government|Research|Commercial","use_cases":["Use case 1","Use case 2"]}]
-
-Critical formatting rules:
-- Start response with [ and end with ]
-- No text before or after the JSON array
-- No comments or explanations
-- No newlines or extra spaces between fields
-- Use double quotes for all strings
-- Valid domains are: Academic, Government, Research, Commercial'''
+CRITICAL: 
+- Response MUST start with [ and end with ]
+- Use ONLY double quotes, no single quotes
+- NO spaces, newlines, or formatting between JSON elements
+- NO text before or after the JSON array
+- NO explanations or comments
+- 3-7 datasets only
+- Valid domains: Academic, Government, Research, Commercial'''
 
 class ClaudeService:
     def __init__(self):
@@ -27,25 +26,24 @@ class ClaudeService:
 
     def _parse_json_response(self, response_text: str) -> List[dict]:
         try:
-            # Aggressively clean the response text
-            cleaned_text = response_text.strip()
-            cleaned_text = ''.join(cleaned_text.split())  # Remove ALL whitespace
+            # Remove all whitespace and normalize quotes
+            text = response_text.strip()
+            text = ''.join(c for c in text if not c.isspace())
+            text = text.replace("'", '"')
             
-            # Find the JSON array bounds
-            json_start = cleaned_text.find('[')
-            json_end = cleaned_text.rfind(']') + 1
+            # Ensure the text starts with [ and ends with ]
+            if not (text.startswith('[') and text.endswith(']')):
+                start = text.find('[')
+                end = text.rfind(']')
+                if start == -1 or end == -1:
+                    raise ValueError("No valid JSON array found in response")
+                text = text[start:end+1]
             
-            if json_start == -1 or json_end == 0:
-                raise ValueError("Response does not contain a JSON array")
+            # Add commas between objects if missing
+            text = text.replace('}{', '},{')
             
-            # Extract just the JSON array
-            json_content = cleaned_text[json_start:json_end]
-            
-            # Add some formatting back for valid JSON
-            formatted_json = json_content.replace('}{', '},{')
-            
-            # Parse the JSON
-            results = json.loads(formatted_json)
+            # Attempt to parse
+            results = json.loads(text)
             
             if not isinstance(results, list):
                 raise ValueError("Response is not a JSON array")
