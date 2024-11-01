@@ -6,44 +6,49 @@ from datetime import datetime
 import json
 
 CLAUDE_SEARCH_PROMPT = '''You are an expert dataset researcher. For the query "{query}", return datasets in this EXACT format:
-[{{"name":"Example Dataset","description":"A clear description of the dataset","url":"https://example.com/data","domain":"Academic","use_cases":["Use case 1","Use case 2"]}}]
+[{{"name":"Example Dataset","description":"A clear and professional description of the dataset","url":"https://example.com/data","domain":"Academic","use_cases":["Use case 1","Use case 2"]}}]
 
 CRITICAL: 
 - Response MUST start with [ and end with ]
 - Use ONLY double quotes, no single quotes
-- NO spaces, newlines, or formatting between JSON elements
 - NO text before or after the JSON array
 - NO explanations or comments
-- 3-7 datasets only
+- 4-10 datasets only
 - Valid domains: Academic, Government, Research, Commercial'''
 
+
 class ClaudeService:
+
     def __init__(self):
         api_key = os.environ.get('ANTHROPIC_API_KEY')
         if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
+            raise ValueError(
+                "ANTHROPIC_API_KEY environment variable is not set")
         self.client = anthropic.Anthropic(api_key=api_key)
 
     def _parse_json_response(self, response_text: str) -> List[dict]:
         try:
-            # Remove all whitespace and normalize quotes
+            # First, find the JSON array bounds
             text = response_text.strip()
-            text = ''.join(c for c in text if not c.isspace())
-            text = text.replace("'", '"')
+            start = text.find('[')
+            end = text.rfind(']') + 1
             
-            # Ensure the text starts with [ and ends with ]
-            if not (text.startswith('[') and text.endswith(']')):
-                start = text.find('[')
-                end = text.rfind(']')
-                if start == -1 or end == -1:
-                    raise ValueError("No valid JSON array found in response")
-                text = text[start:end+1]
+            if start == -1 or end == -1:
+                raise ValueError("No valid JSON array found in response")
+                
+            # Extract the JSON array portion
+            json_content = text[start:end]
             
-            # Add commas between objects if missing
-            text = text.replace('}{', '},{')
+            # Clean only structural elements while preserving content spaces
+            # Remove newlines and extra spaces only around structural elements
+            json_content = json_content.replace('}\n{', '},{')
+            json_content = json_content.replace('} {', '},{')
             
-            # Attempt to parse
-            results = json.loads(text)
+            # Normalize quotes but preserve internal spaces
+            json_content = json_content.replace("'", '"')
+            
+            # Parse the JSON
+            results = json.loads(json_content)
             
             if not isinstance(results, list):
                 raise ValueError("Response is not a JSON array")
@@ -71,15 +76,20 @@ class ClaudeService:
                 raise ValueError(error_msg)
 
         # Additional validation
-        if len(dataset['description']) < 50 or len(dataset['description']) > 200:
-            raise ValueError("Description must be between 50 and 200 characters")
-            
+        if len(dataset['description']) < 50 or len(
+                dataset['description']) > 200:
+            raise ValueError(
+                "Description must be between 50 and 200 characters")
+
         if dataset['domain'] not in valid_domains:
-            raise ValueError(f"Invalid domain: {dataset['domain']}. Must be one of: {', '.join(valid_domains)}")
-            
-        if not isinstance(dataset['use_cases'], list) or not (2 <= len(dataset['use_cases']) <= 5):
+            raise ValueError(
+                f"Invalid domain: {dataset['domain']}. Must be one of: {', '.join(valid_domains)}"
+            )
+
+        if not isinstance(dataset['use_cases'],
+                          list) or not (2 <= len(dataset['use_cases']) <= 5):
             raise ValueError("Use cases must be a list containing 2-5 items")
-            
+
         if not all(isinstance(uc, str) for uc in dataset['use_cases']):
             raise ValueError("All use cases must be strings")
 
@@ -95,8 +105,7 @@ class ClaudeService:
                 messages=[{
                     "role": "user",
                     "content": CLAUDE_SEARCH_PROMPT.format(query=query)
-                }]
-            )
+                }])
 
             # Get response content
             response_text = response.content[0].text.strip()
@@ -119,9 +128,9 @@ class ClaudeService:
                         url=item['url'],
                         domain=item['domain'],
                         use_cases=item['use_cases'],
-                        relevance_score=1.0 - (idx * 0.1),  # Decrease relevance for later results
-                        timestamp=datetime.now()
-                    )
+                        relevance_score=1.0 -
+                        (idx * 0.1),  # Decrease relevance for later results
+                        timestamp=datetime.now())
                     datasets.append(dataset)
                 except ValueError as e:
                     print(f"Skipping invalid dataset: {str(e)}")
@@ -130,11 +139,9 @@ class ClaudeService:
             if not datasets:
                 raise ValueError("No valid datasets found in the response")
 
-            return SearchResult(
-                query=query,
-                datasets=datasets,
-                total_count=len(datasets)
-            )
+            return SearchResult(query=query,
+                                datasets=datasets,
+                                total_count=len(datasets))
 
         except Exception as e:
             raise Exception(f"Error searching datasets: {str(e)}")
